@@ -1,7 +1,6 @@
-const DynamoBackup = require('./lib/dynamo-backup')
-const DynamoRestore = require('./lib/dynamo-restore')
+var DynamoBackup = require('./lib/dynamo-backup');
+var DynamoRestore = require('./lib/dynamo-restore');
 
-module.exports = {
-  Backup: DynamoBackup,
-  Restore: DynamoRestore
-}
+DynamoBackup.Restore = DynamoRestore;
+
+module.exports = DynamoBackup;

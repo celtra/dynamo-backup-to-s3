@@ -1,10 +1,6 @@
 # dynamo-backup-to-s3
 
-Note: the code has changed a lot and document is out dated; especially restore part.
-
-A PR would be great if you feel contributing today.
-
-![dynamo to s3](https://raw.githubusercontent.com/mousavian/dynamo-backup-to-s3/master/img/dynamo-backup-to-s3.png)
+![dynamo to s3](https://raw.githubusercontent.com/sdesalas/dynamo-backup-to-s3/master/img/dynamo-backup-to-s3.png)
 
 ## Stream DynamoDB backups to S3.
 
@@ -41,22 +37,17 @@ Can be run as a command line script or as an npm module.
 ## Quick Example
 
 ```
-var DynamoBackup = require('dynamo-backup-to-s3').Backup;
+var DynamoBackup = require('dynamo-backup-to-s3');
 
 var backup = new DynamoBackup({
-    aws: { /* AWS general configuration options */
-        region: /* AWS region */,
-        accessKeyId: /* AWS access key */,
-        secretAccessKey: /* AWS secret key */,
-        objectParams: {
-            /* optional S3 object properties, such as encryption or storage class*/
-        }
-    },
     excludedTables: ['development-table1', 'development-table2'],
     readPercentage: .5,
     bucket: 'my-backups',
     stopOnFailure: true,
-    base64Binary: true
+    base64Binary: true,
+    awsAccessKey: /* AWS access key */,
+    awsSecretKey: /* AWS secret key */,
+    awsRegion: /* AWS region */
 });
 
 backup.on('error', function(data) {
@@ -85,20 +76,15 @@ backup.backupAllTables(function() {
 
 ```
 var options = {
-    aws: { /* AWS general configuration options */
-        region: /* AWS region */,
-        accessKeyId: /* AWS access key */,
-        secretAccessKey: /* AWS secret key */,
-        objectParams: {
-            /* optional S3 object properties, such as encryption or storage class*/
-        }
-    },
     excludedTables: /* tables to exclude from backup */,
     includedTables: /* only back up these tables */
     readPercentage: /* only consume this much capacity.  expressed as a decimal (i.e. .5 means use 50% of table read capacity).  default: .25 */,
     bucket:         /* bucket to upload the backup to */,
     stopOnFailure:  /* whether or not to continue backing up if a single table fails to back up */,
     saveDataPipelineFormat   /* save in format compatible with the AWS datapipeline import. Default to false (save as exported by DynamoDb) */,
+    awsAccessKey:   /* AWS access key */,
+    awsSecretKey:   /* AWS secret key */,
+    awsRegion:   /* AWS region */,
     backupPath:     /* folder to save backups in.  default: 'DynamoDB-backup-YYYY-MM-DD-HH-mm-ss',
     base64Binary:   /* whether or not to base64 encode binary data before saving to JSON */
 };
@@ -248,15 +234,13 @@ Can be run as a command line script or as an npm module.
 var DynamoRestore = require('dynamo-backup-to-s3').Restore;
 
 var restore = new DynamoRestore({
-    aws: {
-        region: 'ap-southeast-1',
-        accessKeyId: 'my-key',
-        secretAccessKey: 'my-secret'
-    },
     source: 's3://my-backups/DynamoDB-backup-2016-09-28-15-36-40/acme-customers-prod.json',
     table: 'acme-customers-dev',
     overwrite: true,
-    concurrency: 200 // for large restores use 1 unit per MB as a rule of thumb (ie 1000 for 1GB restore)
+    concurrency: 200, // for large restores use 1 unit per MB as a rule of thumb (ie 1000 for 1GB restore)
+    awsAccessKey: /* AWS access key */,
+    awsSecretKey: /* AWS secret key */,
+    awsRegion: /* AWS region */
 });
 
 restore.on('error', function(message) {
@@ -282,11 +266,6 @@ restore.run(function() {
 
 ```
 var options = {
-    aws: { /* AWS general configuration options */
-        region: /* AWS region */,
-        accessKeyId: /* AWS access key */,
-        secretAccessKey: /* AWS secret key */
-    },
     source: /* path to json file in s3 bucket, should start with s3://bucketname/... */,
     table: /* name of dynamo table, will be created on the fly unless overwritten */,
     overwrite: /* true/false if table already exits (defaults to false) */
@@ -295,7 +274,10 @@ var options = {
     sortkey: /* name of secondary (sort) key column */ ,
     readcapacity: /* number of read capacity units (when restore finishes) */,
     writecapacity: /* number of write capacity units (when restore finishes) */,
-    stopOnFailure: /* true/false should a single failed batch stop the whole restore job? */
+    stopOnFailure: /* true/false should a single failed batch stop the whole restore job? */,
+    awsAccessKey: /* AWS access key */,
+    awsSecretKey: /* AWS secret key */,
+    awsRegion: /* AWS region */
 };
 
 var restore = new DynamoBackup.Restore(options);
